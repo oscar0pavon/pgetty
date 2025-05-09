@@ -1,15 +1,16 @@
+CC=musl-gcc
 CFLAGS=-O2 -Wall -W -pipe -D_GNU_SOURCE
 LDFLAGS := -s -static
 
-all: mingetty
+all: pgetty 
 
 install:	all
-		cp mingetty /bin/mingetty
+		cp pgetty /bin/pgetty
 
-mingetty: mingetty.c
-	cc mingetty.c $(LDFLAGS) $(CFLAGS) -o mingetty
+pgetty: main.c
+	$(CC) main.c $(LDFLAGS) $(CFLAGS) -o pgetty
 
 
 clean:
-		rm -f *.o mingetty
+		rm -f *.o pgetty
 
