@@ -9,6 +9,7 @@ install:	all
 
 pgetty: main.c
 	$(CC) main.c $(LDFLAGS) $(CFLAGS) -o pgetty
+	upx --ultra-brute pgetty
 
 
 clean:
