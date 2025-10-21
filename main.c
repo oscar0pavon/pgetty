@@ -212,131 +212,8 @@ static void open_tty (void)
 	sigaction (SIGHUP, &sa_old, NULL);
 }
 
-static void output_special_char (unsigned char c)
-{
-	switch (c) {
-	case 's':
-		printf ("%s", uts.sysname);
-		break;
-	case 'n':
-		printf ("%s", uts.nodename);
-		break;
-	case 'r':
-		printf ("%s", uts.release);
-		break;
-	case 'v':
-		printf ("%s", uts.version);
-		break;
-	case 'm':
-		printf ("%s", uts.machine);
-		break;
-	case 'o':
-		printf ("%s", uts.domainname);
-		break;
-	case 'd':
-	case 't':
-		{
-			time_t cur_time;
-			struct tm *tm;
-#if	0
-			char buff[20];
 
-			time (&cur_time);
-			tm = localtime (&cur_time);
-			strftime (buff, sizeof (buff),
-				c == 'd'? "%a %b %d %Y" : "%X", tm);
-			fputs (buff, stdout);
-			break;
-#else
-			time (&cur_time);
-			tm = localtime (&cur_time);
-			if (c == 'd') /* ISO 8601 */
-				printf ("%d-%02d-%02d", 1900 + tm->tm_year,
-					tm->tm_mon + 1, tm->tm_mday);
-			else
-				printf ("%02d:%02d:%02d", tm->tm_hour,
-					tm->tm_min, tm->tm_sec);
-			break;
-#endif
-		}
 
-	case 'l':
-		printf ("%s", tty);
-		break;
-	case 'u':
-	case 'U':
-		{
-			int users = 0;
-			struct utmp *ut;
-			setutent ();
-			while ((ut = getutent ()))
-				if (ut->ut_type == USER_PROCESS)
-					users++;
-			endutent ();
-			printf ("%d", users);
-			if (c == 'U')
-				printf (" user%s", users == 1 ? "" : "s");
-			break;
-		}
-	default:
-		putchar (c);
-	}
-}
-
-/* do_prompt - show login prompt, optionally preceded by /etc/issue contents */
-static void do_prompt (int showlogin)
-{
-	FILE *fd;
-	int c;
-
-	if (nonewline == 0)
-		putchar ('\n');
-	if (noissue == 0 && (fd = fopen ("/etc/issue", "r"))) {
-		while ((c = getc (fd)) != EOF) {
-			if (c == '\\')
-				output_special_char (getc (fd));
-			else
-				putchar (c);
-		}
-		fclose (fd);
-	}
-	if (nohostname == 0)
-		printf ("%s ", hn);
-	if (showlogin)
-		printf ("login: ");
-	fflush (stdout);
-}
-
-static char *get_logname (void)
-{
-	static char logname[40];
-	char *bp;
-	unsigned char c;
-
-	tcflush (0, TCIFLUSH);		/* flush pending input */
-	for (*logname = 0; *logname == 0;) {
-		do_prompt (1);
-		for (bp = logname;;) {
-			if (read (0, &c, 1) < 1) {
-				if (errno == EINTR || errno == EIO
-					|| errno == ENOENT)
-					exit (EXIT_SUCCESS);
-				error ("%s: read: %s", tty, strerror (errno));
-			}
-			if (c == '\n' || c == '\r') {
-				*bp = 0;
-				break;
-			} else if (!isprint (c))
-				error ("%s: invalid character 0x%x in login"
-					" name", tty, c);
-			else if ((size_t)(bp - logname) >= sizeof (logname) - 1)
-				error ("%s: too long login name", tty);
-			else
-				*bp++ = c;
-		}
-	}
-	return logname;
-}
 
 static void usage (void)
 {
@@ -407,11 +284,9 @@ int main (int argc, char **argv)
 
 	open_tty ();
 
-        do_prompt(0);
-        printf("login: %s (automatic login)\n", autologin);
-        logname = autologin;
+	logname = autologin;
 
-        execl (loginprog, loginprog, autologin? "-f" : "--", logname, NULL);
+  execl (loginprog, loginprog, autologin? "-f" : "--", logname, NULL);
 	printf("%s: can't exec %s: %s", tty, loginprog, strerror (errno));
 	sleep (5);
 	exit (EXIT_FAILURE);
