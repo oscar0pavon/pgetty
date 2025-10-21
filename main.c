@@ -410,45 +410,25 @@ int main (int argc, char **argv)
 			usage ();
 		}
 	}
+
 	if (longhostname == 0 && (s = strchr (hn, '.')))
 		*s = '\0';
 	tty = argv[optind];
-	if (!tty)
-		usage ();
+
 
 	if (strncmp (tty, "/dev/", 5) == 0) /* ignore leading "/dev/" */
 		tty += 5;
 
 	update_utmp ();
-	if (delay)
-		sleep (delay);
+
 	open_tty ();
-	if (autologin) {
-		do_prompt (0);
-		printf ("login: %s (automatic login)\n", autologin);
-		logname = autologin;
-	} else
-		while ((logname = get_logname ()) == 0)
-			/* do nothing */ ;
 
-	if (ch_root) {
-		if (chroot (ch_root))
-			error ("chroot(): %s", strerror (errno));
-		if (chdir("/"))
-			error ("chdir(\"/\"): %s", strerror (errno));
-	}
-	if (ch_dir) {
-		if (chdir (ch_dir))
-			error ("chdir(): %s", strerror (errno));
-	}
-	if (priority) {
-		errno = 0; /* see the nice(2) NOTES for why we do this */
-		if ((nice(priority) == -1) && (errno != 0))
-			error ("nice(): %s", strerror (errno));
-	}
+        do_prompt(0);
+        printf("login: %s (automatic login)\n", autologin);
+        logname = autologin;
 
-	execl (loginprog, loginprog, autologin? "-f" : "--", logname, NULL);
-	error ("%s: can't exec %s: %s", tty, loginprog, strerror (errno));
+        execl (loginprog, loginprog, autologin? "-f" : "--", logname, NULL);
+	printf("%s: can't exec %s: %s", tty, loginprog, strerror (errno));
 	sleep (5);
 	exit (EXIT_FAILURE);
 }
