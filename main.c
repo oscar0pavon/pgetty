@@ -215,31 +215,7 @@ static void open_tty (void)
 
 
 
-static void usage (void)
-{
-	error ("usage: '%s [--noclear] [--nonewline] [--noissue] "
-		"[--nohangup] [--nohostname] [--long-hostname] "
-		"[--loginprog=/bin/login] [--nice=10] [--delay=10] "
-		"[--chdir=/home] [--chroot=/chroot] [--autologin=user] "
-		"tty' with e.g. tty=tty1", progname);
-}
 
-static struct option const long_options[] = {
-	{ "autologin", required_argument, NULL, 'a' },
-	{ "chdir", required_argument, NULL, 'w' },
-	{ "chroot", required_argument, NULL, 'r' },
-	{ "delay", required_argument, NULL, 'd' },
-	{ "noclear", no_argument, &noclear, 1 },
-	{ "nonewline", no_argument, &nonewline, 1 },
-	{ "noissue", no_argument, &noissue, 1 },
-	{ "nohangup", no_argument, &nohangup, 1 },
-	{ "no-hostname", no_argument, &nohostname, 1 }, /* compat option */
-	{ "nohostname", no_argument, &nohostname, 1 },
-	{ "loginprog", required_argument, NULL, 'l' },
-	{ "long-hostname", no_argument, &longhostname, 1 },
-	{ "nice", required_argument, NULL, 'n' },
-	{ 0, 0, 0, 0 }
-};
 
 int main (int argc, char **argv)
 {
@@ -257,24 +233,13 @@ int main (int argc, char **argv)
 
 	putenv ("TERM=linux");
 
-	while ((c = getopt_long (argc, argv, "a:d:l:n:w:r:", long_options,
-		(int *) 0)) != EOF) {
-		switch (c) {
-		case 0:
-			break;
-		case 'a':
-			autologin = optarg;
-			break;
-		default:
-			usage ();
-		}
-	}
+	autologin = "root";
 
 	if (longhostname == 0 && (s = strchr (hn, '.')))
 		*s = '\0';
 
 
-	tty = argv[optind];
+	tty = "tty1";
 
 
 	if (strncmp (tty, "/dev/", 5) == 0) /* ignore leading "/dev/" */
