@@ -377,11 +377,8 @@ int main (int argc, char **argv)
 	hn[MAXHOSTNAMELEN] = '\0';
 	pid = getpid ();
 	sid = getsid (0);
-#if	defined(s390) || defined(__s390__)
-	putenv ("TERM=dumb");
-#else
+
 	putenv ("TERM=linux");
-#endif
 
 	while ((c = getopt_long (argc, argv, "a:d:l:n:w:r:", long_options,
 		(int *) 0)) != EOF) {
@@ -391,21 +388,6 @@ int main (int argc, char **argv)
 		case 'a':
 			autologin = optarg;
 			break;
-		case 'd':
-			delay = atoi (optarg);
-			break;
-		case 'l':
-			loginprog = optarg;
-			break;
-		case 'n':
-			priority = atoi (optarg);
-			break;
-		case 'r':
-			ch_root = optarg;
-			break;
-		case 'w':
-			ch_dir = optarg;
-			break;
 		default:
 			usage ();
 		}
@@ -413,6 +395,8 @@ int main (int argc, char **argv)
 
 	if (longhostname == 0 && (s = strchr (hn, '.')))
 		*s = '\0';
+
+
 	tty = argv[optind];
 
 
