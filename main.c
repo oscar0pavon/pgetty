@@ -204,17 +204,18 @@ static void open_tty (void)
 	if (fd > 2)
 		close (fd);
 
-	/* Write a reset string to the terminal. This is very linux-specific
-	   and should be checked for other systems. */
-	if (noclear == 0)
-		write (0, "\033c", 2);
 
 	sigaction (SIGHUP, &sa_old, NULL);
 }
 
 
 
-
+void clean_screen(){
+	/* Write a reset string to the terminal. This is very linux-specific
+	   and should be checked for other systems. */
+	if (noclear == 0)
+		write (0, "\033c", 2);
+}
 
 
 int main (int argc, char **argv)
@@ -222,9 +223,6 @@ int main (int argc, char **argv)
 	char *logname, *s;
 	int c;
 
-	progname = argv[0];
-	if (!progname)
-		progname = "mingetty";
 
 	uname (&uts);
 
