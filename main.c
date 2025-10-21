@@ -225,9 +225,9 @@ int main (int argc, char **argv)
 	progname = argv[0];
 	if (!progname)
 		progname = "mingetty";
+
 	uname (&uts);
-	gethostname (hn, MAXHOSTNAMELEN);
-	hn[MAXHOSTNAMELEN] = '\0';
+
 	pid = getpid ();
 	sid = getsid (0);
 
@@ -235,15 +235,9 @@ int main (int argc, char **argv)
 
 	autologin = "root";
 
-	if (longhostname == 0 && (s = strchr (hn, '.')))
-		*s = '\0';
-
 
 	tty = "tty1";
 
-
-	if (strncmp (tty, "/dev/", 5) == 0) /* ignore leading "/dev/" */
-		tty += 5;
 
 	update_utmp ();
 
